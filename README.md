@@ -1,4 +1,4 @@
-# BioStream
+# BioStream Alpha
 Pharma Workflow
 
 This project was generated using [Angular CLI](https://github.com/angular/angular-cli) version 21.0.1.
@@ -61,10 +61,10 @@ Build and run the application in a Docker container:
 
 ```bash
 # Build the image
-docker build -t biostream .
+docker build -t biostream-alpha .
 
 # Run the container
-docker run -d -p 80:80 biostream
+docker run -d -p 80:80 biostream-alpha
 ```
 
 ## Deploying to GCP
