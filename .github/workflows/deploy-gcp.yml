@@ -1,0 +1,62 @@
+name: Deploy to GCP
+
+on:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+
+env:
+  PROJECT_ID: ${{ secrets.GCP_PROJECT_ID }}
+  GCE_INSTANCE: ${{ secrets.GCE_INSTANCE }}
+  GCE_INSTANCE_ZONE: ${{ secrets.GCE_INSTANCE_ZONE }}
+  IMAGE_NAME: biostream
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Authenticate to Google Cloud
+        uses: google-github-actions/auth@v2
+        with:
+          credentials_json: ${{ secrets.GCP_SA_KEY }}
+
+      - name: Set up Cloud SDK
+        uses: google-github-actions/setup-gcloud@v2
+        with:
+          project_id: ${{ secrets.GCP_PROJECT_ID }}
+
+      - name: Configure Docker for GCR
+        run: gcloud auth configure-docker gcr.io --quiet
+
+      - name: Build Docker image
+        run: |
+          docker build -t gcr.io/$PROJECT_ID/$IMAGE_NAME:${{ github.sha }} .
+          docker tag gcr.io/$PROJECT_ID/$IMAGE_NAME:${{ github.sha }} gcr.io/$PROJECT_ID/$IMAGE_NAME:latest
+
+      - name: Push Docker image to GCR
+        run: |
+          docker push gcr.io/$PROJECT_ID/$IMAGE_NAME:${{ github.sha }}
+          docker push gcr.io/$PROJECT_ID/$IMAGE_NAME:latest
+
+      - name: Deploy to GCE instance
+        run: |
+          gcloud compute ssh $GCE_INSTANCE --zone=$GCE_INSTANCE_ZONE --command="
+            docker pull gcr.io/$PROJECT_ID/$IMAGE_NAME:latest && \
+            docker stop biostream-app 2>/dev/null; \
+            docker rm biostream-app 2>/dev/null; \
+            docker run -d --name biostream-app --restart unless-stopped -p 80:80 gcr.io/$PROJECT_ID/$IMAGE_NAME:latest
+          "
+
+      - name: Verify deployment
+        run: |
+          sleep 10
+          gcloud compute ssh $GCE_INSTANCE --zone=$GCE_INSTANCE_ZONE --command="
+            docker ps --filter name=biostream-app --format '{{.Status}}' | grep -q 'Up' && echo 'Container is running' || (echo 'Deployment failed' && exit 1)
+          "

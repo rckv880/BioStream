@@ -55,6 +55,42 @@ ng e2e
 
 Angular CLI does not come with an end-to-end testing framework by default. You can choose one that suits your needs.
 
+## Docker
+
+Build and run the application in a Docker container:
+
+```bash
+# Build the image
+docker build -t biostream .
+
+# Run the container
+docker run -d -p 80:80 biostream
+```
+
+## Deploying to GCP
+
+This project includes a GitHub Actions workflow for deploying to a GCP Ubuntu instance. To use it, configure the following secrets in your GitHub repository:
+
+| Secret | Description |
+|--------|-------------|
+| `GCP_PROJECT_ID` | Your GCP project ID |
+| `GCP_SA_KEY` | Service account key JSON with permissions for Compute Engine and Container Registry |
+| `GCE_INSTANCE` | Name of your GCE instance |
+| `GCE_INSTANCE_ZONE` | Zone where your GCE instance is located (e.g., `us-central1-a`) |
+
+### GCP Setup Requirements
+
+1. **GCE Instance**: Create an Ubuntu instance with Docker installed
+2. **Service Account**: Create a service account with the following roles:
+   - Compute Instance Admin (v1)
+   - Storage Admin (for Container Registry)
+3. **Firewall**: Allow HTTP traffic (port 80) to your instance
+
+The workflow will automatically:
+1. Build the Docker image
+2. Push it to Google Container Registry
+3. Deploy to your GCE instance
+
 ## Additional Resources
 
 For more information on using the Angular CLI, including detailed command references, visit the [Angular CLI Overview and Command Reference](https://angular.dev/tools/cli) page.
