@@ -7,7 +7,7 @@
   },
   "newProjectRoot": "projects",
   "projects": {
-    "BioStream": {
+    "BioStreamAlpha": {
       "projectType": "application",
       "schematics": {},
       "root": "",
@@ -57,10 +57,10 @@
           "builder": "@angular/build:dev-server",
           "configurations": {
             "production": {
-              "buildTarget": "BioStream:build:production"
+              "buildTarget": "BioStreamAlpha:build:production"
             },
             "development": {
-              "buildTarget": "BioStream:build:development"
+              "buildTarget": "BioStreamAlpha:build:development"
             }
           },
           "defaultConfiguration": "development"

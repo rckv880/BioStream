@@ -10,7 +10,7 @@ env:
   PROJECT_ID: ${{ secrets.GCP_PROJECT_ID }}
   GCE_INSTANCE: ${{ secrets.GCE_INSTANCE }}
   GCE_INSTANCE_ZONE: ${{ secrets.GCE_INSTANCE_ZONE }}
-  IMAGE_NAME: biostream
+  IMAGE_NAME: biostream-alpha
 
 jobs:
   build-and-deploy:
@@ -49,14 +49,14 @@ jobs:
         run: |
           gcloud compute ssh $GCE_INSTANCE --zone=$GCE_INSTANCE_ZONE --command="
             docker pull gcr.io/$PROJECT_ID/$IMAGE_NAME:latest && \
-            docker stop biostream-app 2>/dev/null; \
-            docker rm biostream-app 2>/dev/null; \
-            docker run -d --name biostream-app --restart unless-stopped -p 80:80 gcr.io/$PROJECT_ID/$IMAGE_NAME:latest
+            docker stop biostream-alpha-app 2>/dev/null; \
+            docker rm biostream-alpha-app 2>/dev/null; \
+            docker run -d --name biostream-alpha-app --restart unless-stopped -p 80:80 gcr.io/$PROJECT_ID/$IMAGE_NAME:latest
           "
 
       - name: Verify deployment
         run: |
           sleep 10
           gcloud compute ssh $GCE_INSTANCE --zone=$GCE_INSTANCE_ZONE --command="
-            docker ps --filter name=biostream-app --format '{{.Status}}' | grep -q 'Up' && echo 'Container is running' || (echo 'Deployment failed' && exit 1)
+            docker ps --filter name=biostream-alpha-app --format '{{.Status}}' | grep -q 'Up' && echo 'Container is running' || (echo 'Deployment failed' && exit 1)
           "
