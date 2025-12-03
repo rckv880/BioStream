@@ -25,8 +25,8 @@ COPY nginx.conf /etc/nginx/nginx.conf
 # Using wildcard to handle any project name
 COPY --from=build /app/dist/*/browser /usr/share/nginx/html
 
-# Expose port 80
-EXPOSE 80
+# Expose port 4200
+EXPOSE 4200
 
 # Start nginx
 CMD ["nginx", "-g", "daemon off;"]
